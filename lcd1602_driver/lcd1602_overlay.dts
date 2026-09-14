@@ -1,0 +1,19 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    fragment@0 {
+        target = <&mcu_i2c0>;
+
+        __overlay__ {
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            lcd1602_node: lcd1602@27 {
+                compatible = "custom,lcd1602-marquee";
+                reg = <0x27>;
+                status = "okay";
+            };
+        };
+    };
+};
