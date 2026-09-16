@@ -2,20 +2,15 @@
 #include <linux/init.h>
 #include <linux/i2c.h>
 #include <linux/delay.h>
-#include <linux/fs.h>
-#include <linux/uaccess.h>
-#include <linux/miscdevice.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Alexandr Belikov");
-MODULE_DESCRIPTION("LCD1602 I2C Driver - Step 3 Char Device /dev/lcd1602");
-MODULE_VERSION("0.3");
+MODULE_DESCRIPTION("LCD1602 I2C Driver - Step 2 HD44780 Init");
+MODULE_VERSION("0.2");
 
 #define LCD_BACKLIGHT 0x08
 #define LCD_ENABLE    0x04
 #define LCD_RS        0x01
-
-static struct i2c_client *lcd_client;
 
 static int lcd1602_write_pcf(struct i2c_client *client, u8 val)
 {
@@ -73,54 +68,11 @@ static void lcd1602_init_display(struct i2c_client *client)
     lcd1602_send_command(client, 0x06); // Авто-инкремент курсора
 }
 
-/* Реализация файловой операции write() для /dev/lcd1602 */
-static ssize_t lcd1602_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
-{
-    char kbuf[33] = {0};
-    size_t len = min(count, (size_t)32);
-    size_t i;
-
-    if (!lcd_client)
-        return -ENODEV;
-
-    // Безопасное копирование данных из пространства пользователя в буфер ядра
-    if (copy_from_user(kbuf, buf, len))
-        return -EFAULT;
-
-    // Очищаем экран перед записью нового текста
-    lcd1602_send_command(lcd_client, 0x01);
-    msleep(2);
-
-    for (i = 0; i < len && kbuf[i] != '\n' && kbuf[i] != '\0'; i++) {
-        // Переход на вторую строку после 16 символов
-        if (i == 16) {
-            lcd1602_send_command(lcd_client, 0xC0);
-        }
-        lcd1602_send_data(lcd_client, kbuf[i]);
-    }
-
-    return count;
-}
-
-static const struct file_operations lcd1602_fops = {
-    .owner = THIS_MODULE,
-    .write = lcd1602_write,
-};
-
-static struct miscdevice lcd1602_miscdev = {
-    .minor = MISC_DYNAMIC_MINOR,
-    .name  = "lcd1602",
-    .fops  = &lcd1602_fops,
-    .mode  = 0666, /* Права rw-rw-rw- при каждом создании /dev/lcd1602 */
-};
-
+/* В современных ядрах probe принимает только struct i2c_client * */
 static int lcd1602_probe(struct i2c_client *client)
 {
-    int ret;
-
     pr_info("lcd1602: Initializing display at address 0x%02x\n", client->addr);
 
-    lcd_client = client;
     lcd1602_init_display(client);
 
     // Тестовый вывод строки при успешной инициализации
@@ -130,28 +82,17 @@ static int lcd1602_probe(struct i2c_client *client)
     lcd1602_send_data(client, 'l');
     lcd1602_send_data(client, 'o');
 
-    // Регистрация символьного устройства в подсистеме misc
-    ret = misc_register(&lcd1602_miscdev);
-    if (ret) {
-        dev_err(&client->dev, "Failed to register misc device /dev/lcd1602\n");
-        return ret;
-    }
-
-    pr_info("lcd1602: /dev/lcd1602 created successfully\n");
     return 0;
 }
 
 static void lcd1602_remove(struct i2c_client *client)
 {
-    pr_info("lcd1602: Removing device /dev/lcd1602 and cleaning up\n");
-
-    misc_deregister(&lcd1602_miscdev);
+    pr_info("lcd1602: Cleaning up display\n");
 
     // Очистка экрана и отключение подсветки
     lcd1602_send_command(client, 0x01);
     msleep(2);
     lcd1602_write_pcf(client, 0x00);
-    lcd_client = NULL;
 }
 
 static const struct of_device_id lcd1602_of_match[] = {
