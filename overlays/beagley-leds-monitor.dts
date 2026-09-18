@@ -1,0 +1,12 @@
+/dts-v1/;
+/plugin/;
+
+&{/leds} {
+    led-0 {
+        linux,default-trigger = "mmc1";
+    };
+
+    led-1 {
+        linux,default-trigger = "activity";
+    };
+};
