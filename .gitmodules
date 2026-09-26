@@ -1,0 +1,12 @@
+[submodule "embedded-linux/u-boot/u-boot_v2026.07"]
+	path = embedded-linux/u-boot/u-boot_v2026.07
+	url = https://github.com/u-boot/u-boot.git
+[submodule "embedded-linux/u-boot/ti-linux-firmware"]
+	path = embedded-linux/u-boot/ti-linux-firmware
+	url = https://github.com/TexasInstruments/ti-linux-firmware.git
+[submodule "embedded-linux/u-boot/arm-trusted-firmware"]
+	path = embedded-linux/u-boot/arm-trusted-firmware
+	url = https://github.com/ARM-software/arm-trusted-firmware.git
+[submodule "embedded-linux/u-boot/optee_os"]
+	path = embedded-linux/u-boot/optee_os
+	url = https://github.com/OP-TEE/optee_os.git

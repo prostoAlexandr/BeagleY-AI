@@ -1,0 +1,35 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "native-debug",
+            "displayName": "Native Linux Debug",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/native-debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "AM67A-debug",
+            "displayName": "TI AM67A ARM Debug",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/am67a-debug",
+            "toolchainFile":
+            "${sourceDir}/cmake/toolchains/am67a.cmake",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "native-debug",
+            "configurePreset": "native-debug"
+        },
+        {
+            "name": "am67a-debug",
+            "configurePreset": "am67a-debug"
+        }
+    ]
+}
