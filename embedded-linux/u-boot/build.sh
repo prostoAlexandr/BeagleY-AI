@@ -72,5 +72,5 @@ make \
     || exit 1
 
 mkdir -p build/result
-cp ${BUILD_A53}/u-boot.bin ${BUILD_A53}/tispl.bin build/result
+cp ${BUILD_A53}/u-boot.img ${BUILD_A53}/tispl.bin build/result
 cp ${BUILD_R5}/tiboot3-j722s-hs-fs-evm.bin build/result/tiboot3.bin 

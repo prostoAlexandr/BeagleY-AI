@@ -3,6 +3,9 @@
 # Check your device name with lsblk
 SD_CARD_DEVICE="unknown"
 
+umount ${SD_CARD_DEVICE}1
+umount ${SD_CARD_DEVICE}2
+
 parted --script ${SD_CARD_DEVICE} \
       mklabel msdos \
       mkpart primary fat16 4MiB 20MiB \
@@ -14,3 +17,5 @@ parted --script ${SD_CARD_DEVICE} \
 mkfs.vfat ${SD_CARD_DEVICE}1
 # Create root partition
 mkfs.ext4 ${SD_CARD_DEVICE}2
+
+# Then just copy result folder files to boot partition
