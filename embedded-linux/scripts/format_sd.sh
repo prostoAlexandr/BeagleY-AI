@@ -1,3 +1,5 @@
+# According to https://docs.u-boot-project.org/en/latest/board/beagle/am67a_beagley_ai.html
+
 # Check your device name with lsblk
 SD_CARD_DEVICE="unknown"
 
