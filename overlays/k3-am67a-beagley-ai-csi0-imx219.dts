@@ -1,0 +1,96 @@
+/dts-v1/;
+/plugin/;
+
+/ {
+    fragment@0 {
+        target-path = "/chosen";
+        __overlay__ {
+            overlays {
+                k3-am67a-beagley-ai-csi0-imx219.kernel = "fixed";
+            };
+        };
+    };
+
+    fragment@1 {
+        target-path = "/";
+        __overlay__ {
+            csi0_imx219_xclk: csi0-imx219-xclk {
+                compatible = "fixed-clock";
+                #clock-cells = <0>;
+                clock-frequency = <24000000>;
+            };
+        };
+    };
+
+    fragment@2 {
+        target = <&mcu_gpio0>;
+        __overlay__ {
+            status = "okay";
+        };
+    };
+
+    fragment@3 {
+        target = <&main_i2c2>;
+        __overlay__ {
+            status = "okay";
+            pinctrl-names = "default";
+            pinctrl-0 = <&main_i2c2_pins_default>;
+            clock-frequency = <400000>;
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            sensor@10 {
+                compatible = "sony,imx219";
+                reg = <0x10>;
+                clocks = <&csi0_imx219_xclk>;
+                clock-names = "xclk";
+                reset-gpios = <&mcu_gpio0 15 0>;
+
+                port {
+                    imx219_0_ep: endpoint {
+                        remote-endpoint = <&csi2rx0_in_sensor>;
+                        link-frequencies = /bits/ 64 <456000000>;
+                        clock-lanes = <0>;
+                        data-lanes = <1 2>;
+                    };
+                };
+            };
+        };
+    };
+
+    fragment@4 {
+        target = <&cdns_csi2rx0>;
+        __overlay__ {
+            ports {
+                #address-cells = <1>;
+                #size-cells = <0>;
+
+                port@0 {
+                    reg = <0>;
+                    status = "okay";
+
+                    csi2rx0_in_sensor: endpoint {
+                        remote-endpoint = <&imx219_0_ep>;
+                        bus-type = <4>;
+                        clock-lanes = <0>;
+                        data-lanes = <1 2>;
+                    };
+                };
+            };
+        };
+    };
+
+    fragment@5 {
+        target = <&ti_csi2rx0>;
+        __overlay__ {
+            status = "okay";
+        };
+    };
+
+    fragment@6 {
+        target = <&dphy0>;
+        __overlay__ {
+            status = "okay";
+        };
+    };
+};
